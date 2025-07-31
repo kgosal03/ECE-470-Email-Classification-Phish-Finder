@@ -1,0 +1,2 @@
+email_text_enron.csv filter=lfs diff=lfs merge=lfs -text
+email_text_trec.csv filter=lfs diff=lfs merge=lfs -text

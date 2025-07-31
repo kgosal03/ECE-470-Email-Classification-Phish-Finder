@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Phish Finder: Email Classifier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-light: #f5f5f5;
+      --text-light: #212121;
+      --card-light: #ffffff;
+      --input-light: #eeeeee;
+
+      --bg-dark: #121212;
+      --text-dark: #f1f1f1;
+      --card-dark: #1c1c1c;
+      --input-dark: #2b2b2b;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+    }
+
+    body.light {
+      background: var(--bg-light);
+      color: var(--text-light);
+    }
+
+    nav {
+      background: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      position: relative;
+      min-height: 120px;
+    }
+
+    body.light nav {
+      background: #ffffff;
+    }
+
+    .logo-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-img-wrapper {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+    }
+
+    .logo-img {
+      max-height: 100%;
+      height: 100%;
+      width: auto;
+      display: block;
+    }
+
+    .logo-text {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    body.light .logo-text {
+      color: var(--text-light);
+    }
+
+    .theme-toggle {
+      position: absolute;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: inherit;
+    }
+
+    .theme-toggle .material-icons {
+      font-size: 1.8rem;
+    }
+
+    body.light .theme-toggle i {
+      color: #212121;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 40px auto;
+    }
+
+    .layout-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 32px;
+      align-items: flex-start;
+      margin-top: 40px;
+    }
+
+    .card-panel {
+      padding: 32px;
+      border-radius: 20px;
+      background: var(--card-dark);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+      width: 100%;
+    }
+
+    body.light .card-panel {
+      background: var(--card-light);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    h5 {
+      font-weight: 600;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .modern-input {
+      background-color: var(--input-dark);
+      border-radius: 20px;
+      padding: 16px 20px;
+      color: inherit;
+      border: none;
+      resize: none;
+      font-size: 1rem;
+      width: 100%;
+      outline: none;
+      min-height: 100px;
+      max-height: 300px;
+      overflow-y: hidden;
+    }
+
+    body.light .modern-input {
+      background-color: var(--input-light);
+    }
+
+    .modern-input:focus {
+      box-shadow: inset 0 0 0 2px #42a5f5;
+    }
+
+    .btn {
+      background: #26c6da;
+      border-radius: 32px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      margin-top: 20px;
+      box-shadow: none;
+      padding: 0 24px;
+      height: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-transform: uppercase;
+    }
+
+    .btn-flat.try-another {
+      margin-top: 12px;
+      font-weight: 600;
+      color: #90caf9;
+    }
+
+    .result-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+    }
+
+    .result-card {
+      margin: 24px auto 12px auto;
+      padding: 12px 28px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      border-radius: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .result-card.spam { background-color: #c62828; }
+    .result-card.not-spam { background-color: #2e7d32; }
+    .result-card.urgent { background-color: #fbc02d; color: #212121; }
+
+    .result-hint {
+      font-size: 0.9rem;
+      color: #bdbdbd;
+      max-width: 400px;
+      margin: 0 auto 12px auto;
+    }
+
+    body.light .result-hint {
+      color: #444;
+    }
+
+    .material-icons.left {
+      margin-right: 8px;
+    }
+
+    #resultSection {
+      transition: opacity 0.3s ease;
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <div class="logo-wrapper">
+      <div class="logo-img-wrapper">
+        <img src="static/logo.png" alt="Phish Finder Logo" class="logo-img" />
+      </div>
+      <div class="logo-text">Phish Finder</div>
+    </div>
+    <div class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">
+      <i class="material-icons">light_mode</i>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="layout-row">
+      <div class="card-panel">
+        <h5>Classify your Email</h5>
+        <form method="post" id="classifierForm">
+          <textarea id="email_text" name="text" class="modern-input" placeholder="Paste your email content here" required>{{ request.form.text or '' }}</textarea>
+          <div class="center-align">
+            <button type="submit" class="btn waves-effect waves-light">
+              <i class="material-icons left">send</i>Classify
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {% if prediction %}
+      <div id="resultSection" class="card-panel result-wrapper">
+        <div class="result-card {% if prediction == 'spam' %}spam{% elif prediction == 'not spam' %}not-spam{% elif prediction == 'urgent' %}urgent{% endif %}">
+          {% if prediction == "spam" %}
+            <i class="material-icons left">report</i> <strong>Spam</strong>
+          {% elif prediction == "not spam" %}
+            <i class="material-icons left">check_circle</i> <strong>Not Spam</strong>
+          {% elif prediction == "urgent" %}
+            <i class="material-icons left">priority_high</i> <strong>Urgent</strong>
+          {% else %}
+            <strong>{{ prediction }}</strong>
+          {% endif %}
+        </div>
+        <div class="result-hint">
+          {% if prediction == "spam" %}
+            This email was flagged based on language patterns, suspicious phrases, and risk markers.
+          {% elif prediction == "not spam" %}
+            This email appears legitimate, but always verify sender info.
+          {% elif prediction == "urgent" %}
+            Content suggests urgency. Take action cautiously.
+          {% else %}
+            Classification uncertain. Manual check advised.
+          {% endif %}
+        </div>
+        <button type="button" class="btn-flat try-another waves-effect" id="tryAnotherBtn">
+          <i class="material-icons left">refresh</i>Try another email
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const textarea = document.getElementById("email_text");
+      const themeToggle = document.getElementById("themeToggle");
+      const icon = themeToggle.querySelector("i");
+      const resultSection = document.getElementById("resultSection");
+      const resetBtn = document.getElementById("tryAnotherBtn");
+
+      function autoResize(el) {
+        el.style.height = "auto";
+        el.style.height = el.scrollHeight + "px";
+      }
+
+      if (textarea) {
+        textarea.addEventListener("input", function () {
+          autoResize(this);
+        });
+        autoResize(textarea);
+      }
+
+      function applyTheme(theme) {
+        document.body.classList.toggle("light", theme === "light");
+        icon.textContent = theme === "light" ? "dark_mode" : "light_mode";
+        localStorage.setItem("theme", theme);
+      }
+
+      const savedTheme = localStorage.getItem("theme") || "dark";
+      applyTheme(savedTheme);
+
+      themeToggle.addEventListener("click", () => {
+        const newTheme = document.body.classList.contains("light") ? "dark" : "light";
+        applyTheme(newTheme);
+      });
+
+      if (resetBtn && resultSection && textarea) {
+        resetBtn.addEventListener("click", () => {
+          textarea.value = "";
+          autoResize(textarea);
+          textarea.focus();
+          resultSection.style.display = "none"; // Hide result box
+        });
+      }
+    });
+  </script>
+</body>
+</html>

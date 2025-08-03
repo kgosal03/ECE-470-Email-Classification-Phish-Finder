@@ -4,7 +4,7 @@ _ECE 470 Summer 2025 – University of Victoria_
 ## Team Members
 - **Karan Gosal** (V00979752)
 - **Tanvir Kahlon** (V00972331)
-- **Evan Gray**
+- **Evan Gray** (V00862697)
 
 ---
 

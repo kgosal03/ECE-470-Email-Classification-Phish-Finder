@@ -1,7 +1,11 @@
 # Phish Finder: Email Classification System  
 _ECE 470 Summer 2025 – University of Victoria_
 
-![1](/screenshots/1.png)
+![1](/Screenshots/1.png)
+
+![2](/Screenshots/2.png)
+
+![3](/Screenshots/3.png)
 
 ## Team Members
 - **Karan Gosal** (V00979752)
